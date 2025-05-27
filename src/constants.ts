@@ -1,0 +1,1 @@
+export const  API_URL: string = "https://collectionapi.metmuseum.org/public/collection/v1";
