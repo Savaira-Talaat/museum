@@ -1,23 +1,23 @@
-import { API_URL } from "../constants"
-
-export async function getAllObjects() {
-    const response = fetch(`${API_URL}/objects`)
-    return (await response).json()
-}
+const API_URL = "https://collectionapi.metmuseum.org/public/collection/v1";
 
 export async function getHighlightedObjects() {
-    const objectsIds = await getAllObjects();
-    let count = 0;
-    const highlightedObjects = [];
-    for (let id in objectsIds?.objectIDs) {
-        if (count > 100) {
-            break;
-        }
-        const response = await fetch(`${API_URL}/objects/${id}`);
-        const body = await response.json();
-        body.isHighlight && highlightedObjects.push(body);
-        count++;
-    }
+    const res = await fetch(`${API_URL}/search?isHighlight=true&q=*`);
+    const data = await res.json();
+    if (!data.objectIDs) return [];
 
-    return highlightedObjects;
+    const ids = data.objectIDs.slice(0, 15);
+
+    const objects = await Promise.all(
+        ids.map(id =>
+            fetch(`${API_URL}/objects/${id}`).then(r => r.json())
+        )
+    );
+
+    return objects
+        .filter(obj => obj.primaryImageSmall && obj.title)
+        .map(obj => ({
+            objectID: obj.objectID,
+            primaryImageSmall: obj.primaryImageSmall,
+            title: obj.title,
+        }));
 }
