@@ -2,9 +2,11 @@ import { AppBar, Stack, Button, Toolbar, Box, TextField, IconButton } from "@mui
 import SearchIcon from '@mui/icons-material/Search';
 import MoodIcon from '@mui/icons-material/Mood';
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 function customAppBar() {
     const [search, setSearch] = useState<string>("");
+    const navigate = useNavigate();
 
     const doSearch = () => {
         // TODO Fill with some behavior
@@ -17,7 +19,7 @@ function customAppBar() {
                 <MoodIcon sx={{ml: 4}}/>
                 <Stack direction="row" spacing={2} sx={{marginLeft: "20px"}}>
                     <Button variant="contained">Home</Button>
-                    <Button variant="contained">Advanced Search</Button>
+                    <Button variant="contained" onClick={() => navigate("advanced-search")}>Advanced Search</Button>
                 </Stack>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     <IconButton aria-label="search" onClick={doSearch}>

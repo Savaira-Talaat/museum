@@ -1,4 +1,4 @@
-const API_URL = "https://collectionapi.metmuseum.org/public/collection/v1";
+import { API_URL } from "../constants";
 
 export async function getHighlightedObjects() {
     const res = await fetch(`${API_URL}/search?isHighlight=true&q=*`);
@@ -8,7 +8,7 @@ export async function getHighlightedObjects() {
     const ids = data.objectIDs.slice(0, 15);
 
     const objects = await Promise.all(
-        ids.map(id =>
+        ids.map((id: any) =>
             fetch(`${API_URL}/objects/${id}`).then(r => r.json())
         )
     );

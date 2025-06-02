@@ -8,6 +8,7 @@ import ObjectPage from './pages/ObjectPage.tsx'
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import {themeOptions} from "./constants/theme.ts";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import AdvancedSearch from './pages/AdvancedSearch.tsx'
 
 const queryClient = new QueryClient();
 createRoot(document.getElementById('root')!).render(
@@ -19,6 +20,7 @@ createRoot(document.getElementById('root')!).render(
             <Route index element={<App />}></Route>
             <Route path='search' element={<Search/>}></Route>
             <Route path="object/:id" element={<ObjectPage/>}></Route> 
+            <Route path="advanced-search" element={<AdvancedSearch />} />
           </Routes>
         </BrowserRouter>
       </QueryClientProvider>
