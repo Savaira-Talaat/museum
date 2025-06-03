@@ -7,6 +7,8 @@ interface CarouselGalleryProps {
     objectID: number;
     primaryImageSmall: string;
     title: string;
+    artist: string;
+    date: string;
   }[];
 }
 
@@ -57,7 +59,12 @@ export default function CarouselGallery({ items }: CarouselGalleryProps) {
       <Slider {...settings}>
         {items.map((item) => (
           <Box key={item.objectID} sx={{ px: { xs: 1, md: 2 } }}>
-            <GalleryCard image={item.primaryImageSmall} title={item.title} />
+            <GalleryCard
+              image={item.primaryImageSmall}
+              title={item.title}
+              artist={item.artist}
+              date={item.date}
+            />
           </Box>
         ))}
       </Slider>
