@@ -12,14 +12,13 @@ export const advancedSearch = async (params: {
     q: params.q || "*",
   };
 
-  if (params.hasImages !== undefined) queryParams.hasImages = String(params.hasImages);
-  if (params.isHighlight !== undefined) queryParams.isHighlight = String(params.isHighlight);
+  if (params.hasImages) queryParams.hasImages = "true";
+  if (params.isHighlight) queryParams.isHighlight = "true";
   if (params.departmentId) queryParams.departmentId = params.departmentId;
   if (params.dateBegin) queryParams.dateBegin = params.dateBegin;
   if (params.dateEnd) queryParams.dateEnd = params.dateEnd;
 
   const queryString = new URLSearchParams(queryParams).toString();
-
   const response = await fetch(`${API_URL}/search?${queryString}`);
 
   if (!response.ok) {

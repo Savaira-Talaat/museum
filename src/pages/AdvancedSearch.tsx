@@ -1,35 +1,45 @@
-import { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
-  TextField,
   Button,
   Checkbox,
   FormControlLabel,
+  MenuItem,
+  Select,
+  TextField,
   Typography,
 } from "@mui/material";
 import { advancedSearch } from "../queries/advancedSearch";
-import { API_URL } from "../constants";
 
-interface ItemDetails {
-  title?: string;
-  department?: string;
-  objectDate?: string;
-  [key: string]: any; 
-}
-
-function AdvancedSearch() {
+const AdvancedSearch = () => {
   const [query, setQuery] = useState("");
   const [hasImages, setHasImages] = useState(false);
   const [isHighlight, setIsHighlight] = useState(false);
   const [departmentId, setDepartmentId] = useState("");
   const [dateBegin, setDateBegin] = useState("");
   const [dateEnd, setDateEnd] = useState("");
-  const [results, setResults] = useState<ItemDetails[]>([]);
+  const [departments, setDepartments] = useState<{ departmentId: number; displayName: string }[]>([]);
+  const [results, setResults] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [hasSearched, setHasSearched] = useState(false);
+
+  useEffect(() => {
+    const fetchDepartments = async () => {
+      try {
+        const res = await fetch("https://collectionapi.metmuseum.org/public/collection/v1/departments");
+        const data = await res.json();
+        setDepartments(data.departments);
+      } catch (e) {
+        console.error("Erreur lors du chargement des départements :", e);
+      }
+    };
+    fetchDepartments();
+  }, []);
 
   const handleSearch = async () => {
     setError(null);
     setResults([]);
+    setHasSearched(false);
 
     try {
       const resultIds = await advancedSearch({
@@ -42,85 +52,84 @@ function AdvancedSearch() {
       });
 
       const details = await Promise.all(
-        resultIds.slice(0, 10).map(async (id: any) => {
-          const res = await fetch(`${API_URL}/items/${id}`);
-          const data = await res.json();
-          console.log(data);
-          return {
-            title: data.title || data.name || "Sans titre",
-            department: data.department || data.dept || "N/A",
-            objectDate: data.objectDate || data.date || "N/A",
-          };
+        resultIds.slice(0, 20).map(async (id: any) => {
+          try {
+            const res = await fetch(`https://collectionapi.metmuseum.org/public/collection/v1/objects/${id}`);
+            if (!res.ok) throw new Error("Not Found");
+            const data = await res.json();
+            return {
+              title: data.title || "Sans titre",
+              department: data.department || "N/A",
+              objectDate: data.objectDate || "N/A",
+              image: data.primaryImageSmall || null,
+            };
+          } catch (e) {
+            return null;
+          }
         })
       );
 
-      setResults(details);
+      setResults(details.filter(Boolean));
     } catch (err) {
       console.error("Erreur de recherche :", err);
       setError("Une erreur est survenue lors de la recherche.");
+    } finally {
+      setHasSearched(true);
     }
   };
 
   return (
-    <Box sx={{ mt: 12, p: 4 }}>
-      <Typography variant="h4" sx={{ mb: 2 }}>
+    <Box sx={{ p: 4 }}>
+      <Typography variant="h4" gutterBottom>
         Recherche Avancée
       </Typography>
-
       <TextField
         label="Mot-clé"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         fullWidth
-        sx={{ mb: 2 }}
+        margin="normal"
       />
-
       <FormControlLabel
-        control={
-          <Checkbox
-            checked={hasImages}
-            onChange={(e) => setHasImages(e.target.checked)}
-          />
-        }
-        label="Avec image"
+        control={<Checkbox checked={hasImages} onChange={(e) => setHasImages(e.target.checked)} />}
+        label="Uniquement avec image"
       />
-
       <FormControlLabel
-        control={
-          <Checkbox
-            checked={isHighlight}
-            onChange={(e) => setIsHighlight(e.target.checked)}
-          />
-        }
-        label="Œuvre en vedette"
+        control={<Checkbox checked={isHighlight} onChange={(e) => setIsHighlight(e.target.checked)} />}
+        label="Œuvres mises en avant"
       />
-
-      <TextField
-        label="ID du département"
+      <Select
         value={departmentId}
         onChange={(e) => setDepartmentId(e.target.value)}
+        displayEmpty
         fullWidth
-        sx={{ mb: 2 }}
-      />
-
+        sx={{ mt: 2 }}
+      >
+        <MenuItem value="">Tous les départements</MenuItem>
+        {departments.map((dept) => (
+          <MenuItem key={dept.departmentId} value={String(dept.departmentId)}>
+            {dept.displayName}
+          </MenuItem>
+        ))}
+      </Select>
       <TextField
         label="Date de début"
         type="number"
         value={dateBegin}
         onChange={(e) => setDateBegin(e.target.value)}
-        sx={{ mb: 2 }}
+        fullWidth
+        margin="normal"
       />
-
       <TextField
         label="Date de fin"
         type="number"
         value={dateEnd}
         onChange={(e) => setDateEnd(e.target.value)}
-        sx={{ mb: 2 }}
+        fullWidth
+        margin="normal"
       />
-
-      <Button variant="contained" onClick={handleSearch}>
-        Lancer la recherche
+      <Button variant="contained" onClick={handleSearch} sx={{ mt: 2 }}>
+        Rechercher
       </Button>
 
       {error && (
@@ -131,21 +140,43 @@ function AdvancedSearch() {
 
       <Box sx={{ mt: 4 }}>
         <Typography variant="h6">Résultats :</Typography>
+
         {results.length > 0 ? (
-          <ul>
+          <ul style={{ listStyleType: "none", padding: 0 }}>
             {results.map((item, index) => (
-              <li key={index}>
-                <strong>{item.title}</strong> - Département : {item.department} -{" "}
-                Date : {item.objectDate}
+              <li key={index} style={{ marginBottom: "1rem" }}>
+                <Typography variant="subtitle1">
+                  <strong>{item.title}</strong>
+                </Typography>
+                <Typography variant="body2">
+                  Département : {item.department} - Date : {item.objectDate}
+                </Typography>
+                {item.image && (
+                  <Box sx={{ mt: 1 }}>
+                    <img
+                      src={item.image}
+                      alt={item.title}
+                      style={{
+                        maxWidth: "150px",
+                        borderRadius: "8px",
+                        boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
+                      }}
+                    />
+                  </Box>
+                )}
               </li>
             ))}
           </ul>
         ) : (
-          <Typography>Aucun résultat pour cette recherche.</Typography>
+          hasSearched && (
+            <Typography sx={{ mt: 2 }}>
+              Aucun résultat trouvé. Essayez d'ajuster vos critères de recherche.
+            </Typography>
+          )
         )}
       </Box>
     </Box>
   );
-}
+};
 
 export default AdvancedSearch;
