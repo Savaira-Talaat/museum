@@ -18,6 +18,7 @@ export default function GalleryGrid({ items }: GalleryGridProps) {
         {items.map((item) => (
           <Grid item xs={12} sm={6} md={3} key={item.objectID}>
             <GalleryCard
+              objectID={item.objectID}
               image={item.primaryImageSmall}
               title={item.title}
               artist={item.artist}

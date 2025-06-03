@@ -60,6 +60,7 @@ export default function CarouselGallery({ items }: CarouselGalleryProps) {
         {items.map((item) => (
           <Box key={item.objectID} sx={{ px: { xs: 1, md: 2 } }}>
             <GalleryCard
+              objectID={item.objectID}
               image={item.primaryImageSmall}
               title={item.title}
               artist={item.artist}
