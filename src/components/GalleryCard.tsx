@@ -7,13 +7,15 @@ interface GalleryCardProps {
   title: string;
   artist: string;
   date: string;
+  className?: string;
 }
 
-export default function GalleryCard({ objectID, image, title, artist, date }: GalleryCardProps) {
+export default function GalleryCard({ objectID, image, title, artist, date, className }: GalleryCardProps) {
   return (
     <Card
       component={Link}
       to={`/object/${objectID}`}
+      className={className}
       sx={{
         width: { xs: 260, sm: 320, md: 360 },
         height: { xs: 390, sm: 430, md: 480 },

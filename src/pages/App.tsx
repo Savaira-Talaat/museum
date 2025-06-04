@@ -35,7 +35,6 @@ function App() {
     queryFn: () => getRandomObjects(12),
   });
 
-  // Réglages du carrousel
   const carouselSettings = {
     dots: true,
     infinite: true,
@@ -52,7 +51,6 @@ function App() {
 
   return (
     <>
-      <CustomAppBar />
       <Container maxWidth="lg" sx={{ mt: 2 }}>
         <Typography variant="h4" gutterBottom>
           Oeuvres en vedette
@@ -70,20 +68,22 @@ function App() {
         )}
         {highlightedObjects && highlightedObjects.length > 0 && (
           <section className="highlights-section" style={{ marginTop: 32 }}>
-            <Slider {...carouselSettings}>
-              {highlightedObjects.map((item) => (
-                <Box key={item.objectID} px={2}>
-                  <GalleryCard
-                    objectID={item.objectID}
-                    image={item.primaryImageSmall}
-                    title={item.title}
-                    artist={item.artist}
-                    date={item.date}
-                    className="artwork-card"
-                  />
-                </Box>
-              ))}
-            </Slider>
+            <Box sx={{ overflowX: "hidden" }}>
+              <Slider {...carouselSettings}>
+                {highlightedObjects.map((item) => (
+                  <Box key={item.objectID} px={2}>
+                    <GalleryCard
+                      objectID={item.objectID}
+                      image={item.primaryImageSmall}
+                      title={item.title}
+                      artist={item.artist}
+                      date={item.date}
+                      className="artwork-card"
+                    />
+                  </Box>
+                ))}
+              </Slider>
+            </Box>
           </section>
         )}
       </Container>

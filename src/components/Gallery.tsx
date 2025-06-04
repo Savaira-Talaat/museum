@@ -5,7 +5,7 @@ interface GalleryCardProps {
   title: string;
 }
 
-export default function GalleryCard({ image, title }: GalleryCardProps) {
+export default function GalleryCardSimple({ image, title }: GalleryCardProps) {
   return (
     <Card sx={{ maxWidth: 220, margin: "0 auto" }}>
       {image && (

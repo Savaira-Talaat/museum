@@ -25,7 +25,6 @@ export async function getHighlightedObjects() {
 }
 
 export async function getRandomObjects(count = 8) {
-    const API_URL = "https://collectionapi.metmuseum.org/public/collection/v1";
     const res = await fetch(`${API_URL}/objects`);
     const data = await res.json();
     if (!data.objectIDs) return [];
@@ -52,7 +51,6 @@ export async function getRandomObjects(count = 8) {
 }
 
 export async function getObjectById(id: number | string) {
-    const API_URL = "https://collectionapi.metmuseum.org/public/collection/v1";
     const res = await fetch(`${API_URL}/objects/${id}`);
     if (!res.ok) throw new Error("Objet non trouvé");
     const obj = await res.json();

@@ -24,11 +24,10 @@ a:hover {
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
   min-width: 320px;
   min-height: 100vh;
 }
+
 
 h1 {
   font-size: 3.2em;
@@ -65,4 +64,24 @@ button:focus-visible {
   button {
     background-color: #f9f9f9;
   }
+}
+
+.slick-prev, .slick-next {
+  display: block !important; /* forcer leur affichage */
+  z-index: 1000;
+  width: 40px;
+  height: 40px;
+  background: rgba(100, 100, 255, 0.5);
+  border-radius: 20px;
+  opacity: 1 !important;
+  top: 50% !important;
+  transform: translateY(-50%);
+}
+
+.slick-prev {
+  left: 10px !important;
+}
+
+.slick-next {
+  right: 10px !important;
 }

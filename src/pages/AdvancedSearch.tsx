@@ -1,15 +1,7 @@
-import React, { useEffect, useState } from "react";
-import {
-  Box,
-  Button,
-  Checkbox,
-  FormControlLabel,
-  MenuItem,
-  Select,
-  TextField,
-  Typography,
-} from "@mui/material";
+import React, { useEffect, useState } from "react"; 
+import {Box, Button, Checkbox, FormControlLabel, MenuItem, Select, TextField, Typography} from "@mui/material";
 import { advancedSearch } from "../queries/advancedSearch";
+import { API_URL } from "../constants";
 
 const AdvancedSearch = () => {
   const [query, setQuery] = useState("");
@@ -26,7 +18,7 @@ const AdvancedSearch = () => {
   useEffect(() => {
     const fetchDepartments = async () => {
       try {
-        const res = await fetch("https://collectionapi.metmuseum.org/public/collection/v1/departments");
+        const res = await fetch(`${API_URL}/departments`);
         const data = await res.json();
         setDepartments(data.departments);
       } catch (e) {
@@ -54,7 +46,7 @@ const AdvancedSearch = () => {
       const details = await Promise.all(
         resultIds.slice(0, 20).map(async (id: any) => {
           try {
-            const res = await fetch(`https://collectionapi.metmuseum.org/public/collection/v1/objects/${id}`);
+            const res = await fetch(`${API_URL}/${id}`);
             if (!res.ok) throw new Error("Not Found");
             const data = await res.json();
             return {
@@ -79,35 +71,41 @@ const AdvancedSearch = () => {
   };
 
   return (
-    <Box sx={{ p: 4 }}>
+    <Box sx={{ p: 4, color: "white" }}>
       <Typography variant="h4" gutterBottom>
         Recherche Avancée
       </Typography>
       <TextField
-        label="Mot-clé"
+        label="Mot-clés"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         fullWidth
         margin="normal"
+        InputLabelProps={{ style: { color: "white" } }}
+        inputProps={{ style: { color: "white" } }}
+        variant="outlined"
       />
       <FormControlLabel
         control={<Checkbox checked={hasImages} onChange={(e) => setHasImages(e.target.checked)} />}
         label="Uniquement avec image"
+        sx={{ color: "white" }}
       />
       <FormControlLabel
         control={<Checkbox checked={isHighlight} onChange={(e) => setIsHighlight(e.target.checked)} />}
         label="Œuvres mises en avant"
+        sx={{ color: "white" }}
       />
       <Select
         value={departmentId}
         onChange={(e) => setDepartmentId(e.target.value)}
         displayEmpty
         fullWidth
-        sx={{ mt: 2 }}
+        sx={{ mt: 2, color: "white" }}
+        inputProps={{ "aria-label": "Département" }}
       >
-        <MenuItem value="">Tous les départements</MenuItem>
+        <MenuItem value="" sx={{ color: "black" }}>Tous les départements</MenuItem>
         {departments.map((dept) => (
-          <MenuItem key={dept.departmentId} value={String(dept.departmentId)}>
+          <MenuItem key={dept.departmentId} value={String(dept.departmentId)} sx={{ color: "black" }}>
             {dept.displayName}
           </MenuItem>
         ))}
@@ -119,6 +117,9 @@ const AdvancedSearch = () => {
         onChange={(e) => setDateBegin(e.target.value)}
         fullWidth
         margin="normal"
+        InputLabelProps={{ style: { color: "white" } }}
+        inputProps={{ style: { color: "white" } }}
+        variant="outlined"
       />
       <TextField
         label="Date de fin"
@@ -127,6 +128,9 @@ const AdvancedSearch = () => {
         onChange={(e) => setDateEnd(e.target.value)}
         fullWidth
         margin="normal"
+        InputLabelProps={{ style: { color: "white" } }}
+        inputProps={{ style: { color: "white" } }}
+        variant="outlined"
       />
       <Button variant="contained" onClick={handleSearch} sx={{ mt: 2 }}>
         Rechercher
