@@ -1,5 +1,12 @@
 import { API_URL } from "../constants";
 
+export async function getAllObjectIDs() {
+    const res = await fetch(`${API_URL}/objects`);
+    const data = await res.json();
+    if (!data.objectIDs) return [];
+    return data.objectIDs as number[];
+}
+
 export async function getHighlightedObjects() {
     const res = await fetch(`${API_URL}/search?isHighlight=true&q=*`);
     const data = await res.json();
@@ -24,23 +31,19 @@ export async function getHighlightedObjects() {
         }));
 }
 
-export async function getRandomObjects(count = 8) {
-    const res = await fetch(`${API_URL}/objects`);
-    const data = await res.json();
-    if (!data.objectIDs) return [];
-
-    const shuffled = [...data.objectIDs].sort(() => 0.5 - Math.random());
-    const ids = shuffled.slice(0, Math.max(50, count * 5));
+export async function getObjectsByPage(pageSize: number, page: number, allObjectIDs: number[]) {
+    const start = (page - 1) * pageSize;
+    const end = start + pageSize;
+    const pageIDs = allObjectIDs.slice(start, end);
 
     const objects = await Promise.all(
-        ids.map(id =>
+        pageIDs.map(id =>
             fetch(`${API_URL}/objects/${id}`).then(r => r.json())
         )
     );
 
     return objects
         .filter(obj => obj.primaryImageSmall && obj.title)
-        .slice(0, count)
         .map(obj => ({
             objectID: obj.objectID,
             primaryImageSmall: obj.primaryImageSmall,

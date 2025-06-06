@@ -1,20 +1,28 @@
+import { useState, useEffect } from "react";
 import CustomAppBar from "../components/CustomAppBar";
 import { useQuery } from "@tanstack/react-query";
 import GalleryCard from "../components/GalleryCard";
-import { getHighlightedObjects, getRandomObjects } from "../queries/objects";
+import { getHighlightedObjects, getAllObjectIDs, getObjectsByPage } from "../queries/objects";
 import {
   Container,
   Typography,
   CircularProgress,
   Box,
   Alert,
+  Pagination,
 } from "@mui/material";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import GalleryGrid from "../components/GalleryGrid";
+// import AdvancedSearchBar from "../components/AdvancedSearchBar"; // décommente quand tu veux l'utiliser
+
+const PAGE_SIZE = 12;
 
 function App() {
+  const [page, setPage] = useState(1);
+  const [shuffledIDs, setShuffledIDs] = useState<number[] | null>(null);
+
   const {
     data: highlightedObjects,
     isLoading: isLoadingHighlights,
@@ -26,14 +34,35 @@ function App() {
   });
 
   const {
-    data: randomObjects,
-    isLoading: isLoadingRandom,
-    isError: isErrorRandom,
-    error: errorRandom,
+    data: allObjectIDs,
+    isLoading: isLoadingAllIDs,
+    isError: isErrorAllIDs,
+    error: errorAllIDs,
   } = useQuery({
-    queryKey: ["get_random_objects"],
-    queryFn: () => getRandomObjects(12),
+    queryKey: ["all_object_ids"],
+    queryFn: getAllObjectIDs,
+    staleTime: Infinity,
   });
+
+  useEffect(() => {
+    if (allObjectIDs && !shuffledIDs) {
+      const shuffled = [...allObjectIDs].sort(() => 0.5 - Math.random());
+      setShuffledIDs(shuffled);
+    }
+  }, [allObjectIDs, shuffledIDs]);
+
+  const {
+    data: pageObjects,
+    isLoading: isLoadingPage,
+    isError: isErrorPage,
+    error: errorPage,
+  } = useQuery({
+    queryKey: ["objects_by_page", page, shuffledIDs],
+    queryFn: () => (shuffledIDs ? getObjectsByPage(PAGE_SIZE, page, shuffledIDs) : []),
+    enabled: !!shuffledIDs,
+  });
+
+  const totalPages = shuffledIDs ? Math.ceil(shuffledIDs.length / PAGE_SIZE) : 0;
 
   const carouselSettings = {
     dots: true,
@@ -92,19 +121,33 @@ function App() {
         <Typography variant="h5" sx={{ mt: 6, mb: 2 }}>
           Sélection d'œuvres aléatoires
         </Typography>
-        {isLoadingRandom && (
+        {/* <AdvancedSearchBar /> décommente ici quand tu veux l'activer */}
+        {isLoadingAllIDs || isLoadingPage || !shuffledIDs ? (
           <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
             <CircularProgress />
           </Box>
-        )}
-        {isErrorRandom && (
+        ) : isErrorAllIDs ? (
+          <Alert severity="error">
+            Erreur lors du chargement des IDs :{" "}
+            {errorAllIDs instanceof Error ? errorAllIDs.message : "Erreur inconnue"}
+          </Alert>
+        ) : isErrorPage ? (
           <Alert severity="error">
             Erreur lors du chargement de la galerie :{" "}
-            {errorRandom instanceof Error ? errorRandom.message : "Erreur inconnue"}
+            {errorPage instanceof Error ? errorPage.message : "Erreur inconnue"}
           </Alert>
-        )}
-        {randomObjects && randomObjects.length > 0 && (
-          <GalleryGrid items={randomObjects} />
+        ) : (
+          <>
+            <GalleryGrid items={pageObjects || []} />
+            <Box display="flex" justifyContent="center" my={4}>
+              <Pagination
+                count={totalPages}
+                page={page}
+                color="primary"
+                onChange={(_, value) => setPage(value)}
+              />
+            </Box>
+          </>
         )}
       </Container>
     </>
