@@ -15,7 +15,6 @@ import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import GalleryGrid from "../components/GalleryGrid";
-// import AdvancedSearchBar from "../components/AdvancedSearchBar"; // décommente quand tu veux l'utiliser
 
 const PAGE_SIZE = 12;
 
@@ -121,7 +120,6 @@ function App() {
         <Typography variant="h5" sx={{ mt: 6, mb: 2 }}>
           Sélection d'œuvres aléatoires
         </Typography>
-        {/* <AdvancedSearchBar /> décommente ici quand tu veux l'activer */}
         {isLoadingAllIDs || isLoadingPage || !shuffledIDs ? (
           <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
             <CircularProgress />
